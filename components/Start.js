@@ -134,6 +134,7 @@ const Start = ({ navigation }) => {
     navigation.navigate('Chat', {
       name: `${text}`,
       backColor: `${backColor}`,
+      randomId: Math.random().toString(36).substring(7),
     });
   };
 
@@ -147,7 +148,7 @@ const Start = ({ navigation }) => {
           android: () => 200,
         })()}
       >
-        <Text style={styles.appTitle}>Private Chat</Text>
+        <Text style={styles.appTitle}>ChatTime</Text>
         <View style={styles.box1}>
           <View style={styles.yourContainer}>
             <Icon

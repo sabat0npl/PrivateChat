@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Platform, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { StyleSheet, View, LogBox } from "react-native";
 import { GiftedChat, Bubble } from "react-native-gifted-chat";
+import * as firebase from "firebase";
+import "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDtXVzJ77K9TA1IKVQFO6Ht0OE8XbfFLJs",
+  authDomain: "private-chat-68e85.firebaseapp.com",
+  projectId: "private-chat-68e85",
+  storageBucket: "private-chat-68e85.appspot.com",
+  messagingSenderId: "346904394182",
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+LogBox.ignoreLogs(["Setting a timer for a long period of time", "undefined"]);
 
 const Chat = (props) => {
   const styles = StyleSheet.create({
@@ -11,30 +26,33 @@ const Chat = (props) => {
   });
 
   const [messages, setMessages] = useState([]);
+  const [uid, setuid] = useState("");
 
-  useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "This is a system message",
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
-  }, []);
+  const onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    querySnapshot.forEach((doc) => {
+      let data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        createdAt: data.createdAt.toDate(),
+        user: data.user,
+      });
+      setMessages(messages);
+    });
+  };
 
-  const onSend = (messages = []) => {
+  const onSend = (messages) => {
     setMessages((previousState) => GiftedChat.append(previousState, messages));
+
+    messages.map((data) => {
+      referenceChatMessages.add({
+        _id: data._id,
+        text: data.text,
+        createdAt: new Date(),
+        user: data.user,
+      });
+    });
   };
 
   const renderBubble = (props) => {
@@ -46,19 +64,40 @@ const Chat = (props) => {
     );
   };
 
+  // Get collection to firebase
+  const referenceChatMessages = firebase.firestore().collection("messages");
+
+  useEffect(() => {
+    const authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      setuid(user.uid);
+      setMessages([]);
+    });
+    const unsubscribe = referenceChatMessages
+      .orderBy("createdAt", "desc")
+      .onSnapshot(onCollectionUpdate);
+
+    // component will unmount
+    return () => {
+      authUnsubscribe();
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <GiftedChat
-        renderBubble={renderBubble}
         messages={messages}
+        renderBubble={renderBubble}
         onSend={onSend}
         user={{
-          _id: 1,
+          _id: `${uid}`,
+          name: `${props.route.params.name}`,
+          avatar: "https://placeimg.com/140/140/any",
         }}
       />
-      {Platform.OS === "android" ? (
-        <KeyboardAvoidingView behavior="height" />
-      ) : null}
     </View>
   );
 };
