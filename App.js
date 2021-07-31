@@ -1,31 +1,35 @@
-import 'react-native-gesture-handler';
-import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
 
+// Change default font to Monserrat.
+import AppLoading from 'expo-app-loading';
+
+// Internal components.
 import Start from './components/Start';
 import Chat from './components/Chat';
-import { PickerIOSComponent } from 'react-native';
 
+// Native-Driven gesture management for improved touch-based experiences.
+import 'react-native-gesture-handler';
+
+// Routing and navigation for Expo and React Native apps.
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 const Stack = createStackNavigator();
 
-const App = (props) => {
+export default function App() {
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name='Start'
-          component={Start}
-          options={{ headerShown: false }}
-        />
+      <Stack.Navigator initialRouteName='miniChat'>
+        <Stack.Screen name='miniChat' component={Start} />
         <Stack.Screen
           name='Chat'
           component={Chat}
-          options={({ route }) => ({ title: route.params.name })}
+          // Pass route prop as argument to the screen to set component title.
+          options={({ route }) => ({
+            title: route.params.name,
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
-
-export default App;
+}
