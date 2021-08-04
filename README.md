@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <p align="center">
   <a href="https://github.com/sabat0npl/privatechat">
-    <img src="!https://user-images.githubusercontent.com/62220159/128108980-897fe941-a5ab-476c-8251-ceceeefeb19b.png" alt="Logo" width="600">
+    <img src="https://user-images.githubusercontent.com/62220159/128108980-897fe941-a5ab-476c-8251-ceceeefeb19b.png" alt="Logo" width="600">
   </a>
   <p align="center">
     Just another chat app for mobile devices built with React Native.
